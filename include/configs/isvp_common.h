@@ -204,6 +204,7 @@
 #define CONFIG_CMD_GPIO
 #define CONFIG_CMD_JFFS2
 #define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
 #define CONFIG_CMD_MEMORY
 #define CONFIG_CMD_MISC
 #define CONFIG_CMD_MMC
@@ -248,6 +249,61 @@
 #define CONFIG_CMD_UBIFS
 #define CONFIG_CMD_USB
 */
+
+/**
+ * Command configuration.
+ */
+
+/*
+#define CONFIG_AUTO_COMPLETE
+#define CONFIG_CMD_BOOTD
+#define CONFIG_CMD_CONSOLE
+#define CONFIG_CMD_DHCP
+#define CONFIG_CMD_ECHO
+#define CONFIG_CMD_EXT2
+#define CONFIG_CMD_EXT4
+#define CONFIG_CMD_FLASH
+#define CONFIG_CMD_FLOCK
+#define CONFIG_CMD_GETTIME
+#define CONFIG_CMD_I2C
+#define CONFIG_CMD_JFFS2
+#define CONFIG_CMD_LOADB
+#define CONFIG_CMD_LOADS
+#define CONFIG_CMD_MEMORY
+#define CONFIG_CMD_MISC
+#define CONFIG_CMD_MMC
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_NET
+#define CONFIG_CMD_PING
+#define CONFIG_CMD_RUN
+#define CONFIG_CMD_SAVEENV
+#define CONFIG_CMD_SF
+#define CONFIG_CMD_SOURCE
+#define CONFIG_CMD_TFTPDOWNLOAD
+#define CONFIG_CMD_USB
+#define CONFIG_CMD_WATCHDOG
+
+#if defined(CONFIG_SPL_SFC_NAND) || defined(CONFIG_SFC_NAND_COMMAND)
+#define CONFIG_CMD_MTDPARTS
+#define CONFIG_CMD_NAND
+#define CONFIG_CMD_SFCNAND
+#define CONFIG_CMD_SFC_NAND
+#define CONFIG_CMD_UBI
+#define CONFIG_CMD_UBIFS
+#endif
+*/
+
+#if defined(CONFIG_DDR2_128M) || defined(CONFIG_DDR3_128M)
+#define CONFIG_EXTRA_SETTINGS \
+"totalmem=128M\0" \
+"osmem=64M\0" \
+"rmem=64M@0x4000000\0"
+#else
+#define CONFIG_EXTRA_SETTINGS \
+"totalmem=64M\0" \
+"osmem=40M\0" \
+"rmem=24M@0x2800000\0"
+#endif
 
 #if defined(CONFIG_SPL_MMC_SUPPORT)
 #define CONFIG_BOOTCOMMAND \
