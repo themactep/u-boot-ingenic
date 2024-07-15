@@ -37,9 +37,9 @@ unsigned int quad_mode_is_set = 0;
 
 
 struct jz_sfc_slave {
-	struct spi_slave slave;
-	unsigned int mode;
-	unsigned int max_hz;
+    struct spi_slave slave;
+    unsigned int mode;
+    unsigned int max_hz;
 };
 
 #define CMD_LEN 5
@@ -47,16 +47,16 @@ static int spi_xfer_cmd_len;
 static unsigned char spi_xfer_cmd[CMD_LEN];
 
 struct jz_sfc {
-	unsigned int  addr;
-	unsigned int  len;
-	unsigned int  cmd;
-	unsigned int  addr_plus;
-	unsigned int  sfc_mode;
-	unsigned char daten;
-	unsigned char addr_len;
-	unsigned char pollen;
-	unsigned char phase;
-	unsigned char dummy_byte;
+    unsigned int addr;
+    unsigned int len;
+    unsigned int cmd;
+    unsigned int addr_plus;
+    unsigned int sfc_mode;
+    unsigned char daten;
+    unsigned char addr_len;
+    unsigned char pollen;
+    unsigned char phase;
+    unsigned char dummy_byte;
 };
 
 
@@ -73,25 +73,25 @@ static void jz_sfc_writel(unsigned int value, unsigned int offset)
 void dump_sfc_reg(void)
 {
 	int i = 0;
-	printf("SFC_GLB			:%x\n", jz_sfc_readl(SFC_GLB ));
-	printf("SFC_DEV_CONF	:%x\n", jz_sfc_readl(SFC_DEV_CONF ));
-	printf("SFC_STA_RT	:%x\n", jz_sfc_readl(SFC_STA_RT ));
-	printf("SFC_STA_MSK	:%x\n", jz_sfc_readl(SFC_STA_MSK ));
-	printf("SFC_TRAN_LEN		:%x\n", jz_sfc_readl(SFC_TRAN_LEN ));
+	printf("SFC_GLB		:%x\n", jz_sfc_readl(SFC_GLB));
+	printf("SFC_DEV_CONF	:%x\n", jz_sfc_readl(SFC_DEV_CONF));
+	printf("SFC_STA_RT	:%x\n", jz_sfc_readl(SFC_STA_RT));
+	printf("SFC_STA_MSK	:%x\n", jz_sfc_readl(SFC_STA_MSK));
+	printf("SFC_TRAN_LEN	:%x\n", jz_sfc_readl(SFC_TRAN_LEN));
 
-	for(i = 0; i < 6; i++)
-		printf("SFC_TRAN_CONF(%d)	:%x\n", i,jz_sfc_readl(SFC_TRAN_CONF(i)));
+	for (i = 0; i < 6; i++)
+		printf("SFC_TRAN_CONF(%d)	:%x\n", i, jz_sfc_readl(SFC_TRAN_CONF(i)));
 
-	for(i = 0; i < 6; i++)
-		printf("SFC_DEV_ADDR(%d)	:%x\n", i,jz_sfc_readl(SFC_DEV_ADDR(i)));
+	for (i = 0; i < 6; i++)
+		printf("SFC_DEV_ADDR(%d)	:%x\n", i, jz_sfc_readl(SFC_DEV_ADDR(i)));
 
-	printf("SFC_MEM_ADDR :%x\n", jz_sfc_readl(SFC_MEM_ADDR));
-	printf("SFC_TRIG	 :%x\n", jz_sfc_readl(SFC_TRIG));
-	printf("SFC_SR		 :%x\n", jz_sfc_readl(SFC_SR));
-	printf("SFC_SCR		 :%x\n", jz_sfc_readl(SFC_SCR));
-	printf("SFC_INTC	 :%x\n", jz_sfc_readl(SFC_INTC));
-	printf("SFC_FSM		 :%x\n", jz_sfc_readl(SFC_FSM ));
-	printf("SFC_CGE		 :%x\n", jz_sfc_readl(SFC_CGE ));
+	printf("SFC_MEM_ADDR	:%x\n", jz_sfc_readl(SFC_MEM_ADDR));
+	printf("SFC_TRIG	:%x\n", jz_sfc_readl(SFC_TRIG));
+	printf("SFC_SR		:%x\n", jz_sfc_readl(SFC_SR));
+	printf("SFC_SCR		:%x\n", jz_sfc_readl(SFC_SCR));
+	printf("SFC_INTC	:%x\n", jz_sfc_readl(SFC_INTC));
+	printf("SFC_FSM		:%x\n", jz_sfc_readl(SFC_FSM));
+	printf("SFC_CGE		:%x\n", jz_sfc_readl(SFC_CGE));
 }
 
 unsigned int sfc_fifo_num(void)
@@ -110,7 +110,7 @@ void sfc_set_mode(int channel, int value)
 	tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 	tmp &= ~(TRAN_MODE_MSK);
 	tmp |= (value << TRAN_MODE_OFFSET);
-	jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+	jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 }
 
 
@@ -120,27 +120,27 @@ void sfc_dev_addr_dummy_bytes(int channel, unsigned int value)
 	tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 	tmp &= ~TRAN_CONF_DMYBITS_MSK;
 	tmp |= (value << TRAN_CONF_DMYBITS_OFFSET);
-	jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+	jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 }
 
 void sfc_transfer_direction(int value)
 {
-	if(value == 0) {
+	if (value == 0) {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_GLB);
 		tmp &= ~TRAN_DIR;
-		jz_sfc_writel(tmp,SFC_GLB);
+		jz_sfc_writel(tmp, SFC_GLB);
 	} else {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_GLB);
 		tmp |= TRAN_DIR;
-		jz_sfc_writel(tmp,SFC_GLB);
+		jz_sfc_writel(tmp, SFC_GLB);
 	}
 }
 
 void sfc_set_length(int value)
 {
-	jz_sfc_writel(value,SFC_TRAN_LEN);
+	jz_sfc_writel(value, SFC_TRAN_LEN);
 }
 
 void sfc_set_addr_length(int channel, unsigned int value)
@@ -149,36 +149,36 @@ void sfc_set_addr_length(int channel, unsigned int value)
 	tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 	tmp &= ~(ADDR_WIDTH_MSK);
 	tmp |= (value << ADDR_WIDTH_OFFSET);
-	jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+	jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 }
 
 void sfc_cmd_en(int channel, unsigned int value)
 {
-	if(value == 1) {
+	if (value == 1) {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 		tmp |= CMD_EN;
-		jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+		jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 	} else {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 		tmp &= ~CMD_EN;
-		jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+		jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 	}
 }
 
 void sfc_data_en(int channel, unsigned int value)
 {
-	if(value == 1) {
+	if (value == 1) {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 		tmp |= DATEEN;
-		jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+		jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 	} else {
 		unsigned int tmp;
 		tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 		tmp &= ~DATEEN;
-		jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+		jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 	}
 }
 
@@ -188,7 +188,7 @@ void sfc_write_cmd(int channel, unsigned int value)
 	tmp = jz_sfc_readl(SFC_TRAN_CONF(channel));
 	tmp &= ~CMD_MSK;
 	tmp |= value;
-	jz_sfc_writel(tmp,SFC_TRAN_CONF(channel));
+	jz_sfc_writel(tmp, SFC_TRAN_CONF(channel));
 }
 
 void sfc_dev_addr(int channel, unsigned int value)
@@ -198,10 +198,10 @@ void sfc_dev_addr(int channel, unsigned int value)
 
 void sfc_dev_addr_plus(int channel, unsigned int value)
 {
-	jz_sfc_writel(value,SFC_DEV_ADDR_PLUS(channel));
+	jz_sfc_writel(value, SFC_DEV_ADDR_PLUS(channel));
 }
 
-void sfc_set_transfer(struct jz_sfc *hw,int dir)
+void sfc_set_transfer(struct jz_sfc *hw, int dir)
 {
 	if(dir == 1)
 		sfc_transfer_direction(GLB_TRAN_DIR_WRITE);
@@ -214,8 +214,8 @@ void sfc_set_transfer(struct jz_sfc *hw,int dir)
 	sfc_write_cmd(0, hw->cmd);
 	sfc_dev_addr(0, hw->addr);
 	sfc_dev_addr_plus(0, hw->addr_plus);
-	sfc_dev_addr_dummy_bytes(0,hw->dummy_byte);
-	sfc_set_mode(0,hw->sfc_mode);
+	sfc_dev_addr_dummy_bytes(0, hw->dummy_byte);
+	sfc_set_mode(0, hw->sfc_mode);
 
 }
 
@@ -225,12 +225,12 @@ static int sfc_read_data(unsigned int *data, unsigned int length)
 	unsigned int fifo_num = 0;
 	unsigned int i;
 	unsigned int reg_tmp = 0;
-	unsigned int  len = (length + 3) / 4 ;
+	unsigned int len = (length + 3) / 4;
 
-	while(1){
+	while (1) {
 		reg_tmp = jz_sfc_readl(SFC_SR);
 		if (reg_tmp & RECE_REQ) {
-			jz_sfc_writel(CLR_RREQ,SFC_SCR);
+			jz_sfc_writel(CLR_RREQ, SFC_SCR);
 			if ((len - tmp_len) > THRESHOLD)
 				fifo_num = THRESHOLD;
 			else {
@@ -248,17 +248,16 @@ static int sfc_read_data(unsigned int *data, unsigned int length)
 	}
 
 	reg_tmp = jz_sfc_readl(SFC_SR);
-	while (!(reg_tmp & END)){
+	while (!(reg_tmp & END)) {
 		reg_tmp = jz_sfc_readl(SFC_SR);
 	}
 
 	if ((jz_sfc_readl(SFC_SR)) & END)
-		jz_sfc_writel(CLR_END,SFC_SCR);
+		jz_sfc_writel(CLR_END, SFC_SCR);
 
 
 	return 0;
 }
-
 
 static int sfc_write_data(unsigned int *data, unsigned int length)
 {
@@ -266,12 +265,12 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 	unsigned int fifo_num = 0;
 	unsigned int i;
 	unsigned int reg_tmp = 0;
-	unsigned int  len = (length + 3) / 4 ;
+	unsigned int len = (length + 3) / 4;
 
-	while(1){
+	while (1) {
 		reg_tmp = jz_sfc_readl(SFC_SR);
 		if (reg_tmp & TRAN_REQ) {
-			jz_sfc_writel(CLR_TREQ,SFC_SCR);
+			jz_sfc_writel(CLR_TREQ, SFC_SCR);
 			if ((len - tmp_len) > THRESHOLD)
 				fifo_num = THRESHOLD;
 			else {
@@ -279,7 +278,7 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 			}
 
 			for (i = 0; i < fifo_num; i++) {
-				jz_sfc_writel(*data,SFC_DR);
+				jz_sfc_writel(*data, SFC_DR);
 				data++;
 				tmp_len++;
 			}
@@ -289,171 +288,21 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 	}
 
 	reg_tmp = jz_sfc_readl(SFC_SR);
-	while (!(reg_tmp & END)){
+	while (!(reg_tmp & END)) {
 		reg_tmp = jz_sfc_readl(SFC_SR);
 	}
 
 	if ((jz_sfc_readl(SFC_SR)) & END)
-		jz_sfc_writel(CLR_END,SFC_SCR);
-
+		jz_sfc_writel(CLR_END, SFC_SCR);
 
 	return 0;
-}
-/*this code is the same as the spl in common/spl*/
-#if 0
-static void sfc_set_read_reg(unsigned int cmd, unsigned int addr,
-		unsigned int addr_plus, unsigned int addr_len, unsigned int data_en)
-{
-	volatile unsigned int tmp;
-	unsigned int timeout = 0xffff;
-
-	tmp = jz_sfc_readl(SFC_GLB);
-	tmp &= ~PHASE_NUM_MSK;
-	tmp |= (0x1 << PHASE_NUM_OFFSET);
-	jz_sfc_writel(tmp,SFC_GLB);
-
-	tmp = jz_sfc_readl(SFC_TRAN_CONF(0));
-	tmp &= ~(ADDR_WIDTH_MSK | DMYBITS_MSK | CMD_MSK | PHASE_FORMAT | DATEEN);
-	if (data_en) {
-		tmp |= (addr_len << ADDR_WIDTH_OFFSET) | CMD_EN |
-			DATEEN | (cmd << CMD_OFFSET);
-	} else {
-		tmp |= (addr_len << ADDR_WIDTH_OFFSET) | CMD_EN |
-			(cmd << CMD_OFFSET);
 	}
-	jz_sfc_writel(tmp,SFC_TRAN_CONF(0));
-
-	jz_sfc_writel(addr,SFC_DEV_ADDR(0));
-	jz_sfc_writel(addr_plus,SFC_DEV_ADDR_PLUS(0));
-
-
-#if defined (CONFIG_SPI_QUAD)
-	sfc_dev_addr_dummy_bytes(0,8);
-	sfc_set_mode(0,TRAN_SPI_QUAD);
-#elif defined  (CONFIG_SPI_DUAL)
-	sfc_dev_addr_dummy_bytes(0,8);
-	sfc_set_mode(0,TRAN_SPI_DUAL);
-#else
-   sfc_dev_addr_dummy_bytes(0,0);
-   sfc_set_mode(0,0);
-#endif
-
-	jz_sfc_writel(START,SFC_TRIG);
 }
-
-
-
-void sfc_write_enable()
-{
-	struct jz_sfc sfc;
-	sfc.cmd = CMD_WREN;
-	sfc.addr_len = 0;
-	sfc.addr = 0;
-	sfc.addr_plus = 0;
-	sfc.dummy_byte = 0;
-	sfc.daten = 0;
-	sfc.len = 0;
-	sfc.sfc_mode = 0;
-
-	sfc_set_transfer(&sfc,0);
-	jz_sfc_writel(START,SFC_TRIG);
-	if ((jz_sfc_readl(SFC_SR)) & END)
-		jz_sfc_writel(CLR_END,SFC_SCR);
-}
-
-
-static unsigned int jz_nor_read_status(int regnum)
-{
-	struct jz_sfc sfc;
-	unsigned char cmd_rdsr[3] = {0x05, 0x35, 0x15}; /* reg0, reg1, reg2 */
-	unsigned int status_reg = 0;
-	int err;
-
-	printf("coc -5\n");
-	sfc.cmd = cmd_rdsr[regnum];
-	sfc.addr_len = 0;
-	sfc.addr = 0;
-	sfc.addr_plus = 0;
-	sfc.dummy_byte = 0;
-	sfc.daten = 1;
-	sfc.len = 1;
-	sfc.sfc_mode = 0;
-	sfc_set_transfer(&sfc,1);
-	jz_sfc_writel(START,SFC_TRIG);
-
-	err = sfc_read_data(&status_reg, 1);
-	return status_reg;
-}
-
-void sfc_set_status_reg(unsigned regnum)
-{
-	struct jz_sfc sfc;
-	volatile unsigned int tmp;
-	unsigned int  data;
-	unsigned char cmd_wdsr[3] = {0x01, 0x31, 0x11};
-
-	printf("coc -1\n");
-	sfc_write_enable();
-
-	printf("coc -2\n");
-	sfc.cmd = cmd_wdsr[regnum];
-	sfc.addr_len = 0;
-	sfc.addr = 0;
-	sfc.addr_plus = 0;
-	sfc.dummy_byte = 0;
-	sfc.daten = 1;
-//	sfc.len = 1;
-	sfc.len = 2;
-	sfc.sfc_mode = 0;
-	data = 0x0200;
-//	data = 0x2;
-	sfc_set_transfer(&sfc,0);
-	printf("coc -3\n");
-	jz_sfc_writel(START,SFC_TRIG);
-	sfc_write_data(&data, 1);
-	while (!(jz_nor_read_status(1) & 0x2/*STATUS_WIP*/)) {
-
-	}
-
-}
-
-static int sfc_read(unsigned int addr, unsigned int addr_plus,
-		unsigned int addr_len, unsigned int *data, unsigned int len)
-{
-	int ret;
-
-	unsigned char cmd = 0,mode = 0;
-
-#if defined (CONFIG_SPI_QUAD)
-	cmd  = CMD_QUAD_READ;
-	mode = TRAN_SPI_QUAD;
-#elif defined (CONFIG_SPI_DUAL)
-	cmd  = CMD_DUAL_READ;
-	mode = TRAN_SPI_DUAL;
-#else
-	cmd  = CMD_READ;
-	mode = TRAN_SPI_STANDARD;
-#endif
-
-	//sfc_set_status_reg(0);
-
-	jz_sfc_writel((len * 4), SFC_TRAN_LEN);
-
-	sfc_set_read_reg(cmd, addr, addr_plus, addr_len, 1);
-
-	dump_sfc_reg();
-
-	ret = sfc_read_data(data, len*4);
-	if (ret)
-		return ret;
-	else
-		return 0;
-}
-#endif
 
 #define CPM_SSICDR (0xb0000000 + 0x74)
 #define CPM_CLKGR0 (0xb0000000 + 0x20)
-int sfc_init(void )
+
+int sfc_init(void)
 {
 	unsigned int i;
 	volatile unsigned int tmp;
@@ -462,9 +311,9 @@ int sfc_init(void )
 	sfc_rate = 50000000;
 	clk_set_rate(SSI, sfc_rate);
 #else
-	if(sfc_rate !=0 )
+	if (sfc_rate != 0) {
 		clk_set_rate(SSI, sfc_rate);
-	else{
+	} else {
 		printf("this will be an error that the sfc rate is 0\n");
 		sfc_rate = 70000000;
 		clk_set_rate(SSI, sfc_rate);
@@ -477,33 +326,32 @@ int sfc_init(void )
 #endif
 
 	tmp = jz_sfc_readl(SFC_GLB);
-	tmp &= ~(TRAN_DIR | OP_MODE );
+	tmp &= ~(TRAN_DIR | OP_MODE);
 	tmp |= WP_EN;
-	jz_sfc_writel(tmp,SFC_GLB);
+	jz_sfc_writel(tmp, SFC_GLB);
 
 	tmp = jz_sfc_readl(SFC_DEV_CONF);
-	tmp &= ~(CMD_TYPE | CPHA | CPOL | SMP_DELAY_MSK |
-			THOLD_MSK | TSETUP_MSK | TSH_MSK);
+	tmp &= ~(CMD_TYPE | CPHA | CPOL | SMP_DELAY_MSK | THOLD_MSK | TSETUP_MSK | TSH_MSK);
 	tmp |= (CEDL | HOLDDL | WPDL | 1 << SMP_DELAY_OFFSET);
-	jz_sfc_writel(tmp,SFC_DEV_CONF);
+	jz_sfc_writel(tmp, SFC_DEV_CONF);
 
 	for (i = 0; i < 6; i++) {
-		jz_sfc_writel((jz_sfc_readl(SFC_TRAN_CONF(i))& (~(TRAN_MODE_MSK | PHASE_FORMAT))),SFC_TRAN_CONF(i));
+		jz_sfc_writel((jz_sfc_readl(SFC_TRAN_CONF(i)) & (~(TRAN_MODE_MSK | PHASE_FORMAT))), SFC_TRAN_CONF(i));
 	}
 
-	jz_sfc_writel((CLR_END | CLR_TREQ | CLR_RREQ | CLR_OVER | CLR_UNDR),SFC_INTC);
+	jz_sfc_writel((CLR_END | CLR_TREQ | CLR_RREQ | CLR_OVER | CLR_UNDR), SFC_INTC);
 
-	jz_sfc_writel(0,SFC_CGE);
+	jz_sfc_writel(0, SFC_CGE);
 
 	tmp = jz_sfc_readl(SFC_GLB);
 	tmp &= ~(THRESHOLD_MSK);
 	tmp |= (THRESHOLD << THRESHOLD_OFFSET);
-	jz_sfc_writel(tmp,SFC_GLB);
+	jz_sfc_writel(tmp, SFC_GLB);
 
 	return 0;
 }
 
-void sfc_send_cmd(unsigned char *cmd,unsigned int len,unsigned int addr ,unsigned addr_len,unsigned dummy_byte,unsigned int daten,unsigned char dir)
+void sfc_send_cmd(unsigned char *cmd, unsigned int len, unsigned int addr, unsigned addr_len, unsigned dummy_byte, unsigned int daten, unsigned char dir)
 {
 	struct jz_sfc sfc;
 	unsigned int reg_tmp = 0;
@@ -516,34 +364,34 @@ void sfc_send_cmd(unsigned char *cmd,unsigned int len,unsigned int addr ,unsigne
 	sfc.daten = daten;
 	sfc.len = len;
 
-	if((daten == 1)&&(addr_len != 0)){
+	if ((daten == 1) && (addr_len != 0)) {
 		sfc.sfc_mode = mode;
-	}else{
+	} else {
 		sfc.sfc_mode = 0;
 	}
-	sfc_set_transfer(&sfc,dir);
-	jz_sfc_writel(1 << 2,SFC_TRIG);
-	jz_sfc_writel(START,SFC_TRIG);
+	sfc_set_transfer(&sfc, dir);
+	jz_sfc_writel(1 << 2, SFC_TRIG);
+	jz_sfc_writel(START, SFC_TRIG);
 
 	/*this must judge the end status*/
-	if((daten == 0)){
+	if ((daten == 0)) {
 		reg_tmp = jz_sfc_readl(SFC_SR);
-		while (!(reg_tmp & END)){
+		while (!(reg_tmp & END)) {
 			reg_tmp = jz_sfc_readl(SFC_SR);
 		}
 
 		if ((jz_sfc_readl(SFC_SR)) & END)
-			jz_sfc_writel(CLR_END,SFC_SCR);
+			jz_sfc_writel(CLR_END, SFC_SCR);
 	}
 
 }
-int sfc_nand_write_data(unsigned int *data,unsigned int length)
+int sfc_nand_write_data(unsigned int *data, unsigned int length)
 {
-	return sfc_write_data(data,length);
+	return sfc_write_data(data, length);
 }
 int sfc_nand_read_data(unsigned int *data, unsigned int length)
 {
-	 return sfc_read_data(data,length);
+	return sfc_read_data(data, length);
 }
 
 #ifdef CONFIG_SFC_NOR
@@ -898,54 +746,6 @@ int jz_sfc_erase(struct spi_flash *flash, u32 offset, size_t len)
 	return 0;
 }
 
-#if 0
-struct spi_flash *sfc_flash_probe_ingenic(struct spi_slave *spi, u8 *idcode)
-{
-	int i;
-	struct spi_flash *flash;
-	//struct jz_spi_support *params;
-
-	for (i = 0; i < ARRAY_SIZE(jz_spi_support_table); i++) {
-		gparams = &jz_spi_support_table[i];
-		if (gparams->id_manufactory == idcode[0])
-			break;
-	}
-
-	if (i == ARRAY_SIZE(jz_spi_support_table)) {
-#ifdef CONFIG_BURNER
-		if (idcode[0] != 0){
-			printf("unsupport ID is %04x if the id not be 0x00,the flash is ok for burner\n",idcode[0]);
-			gparams = &jz_spi_support_table[1];
-		}else{
-			printf("ingenic: Unsupported ID %04x\n", idcode[0]);
-			return NULL;
-
-		}
-#else
-			printf("ingenic: Unsupported ID %04x\n", idcode[0]);
-			return NULL;
-#endif
-	}
-
-	flash = spi_flash_alloc_base(spi, gparams->name);
-	if (!flash) {
-		printf("ingenic: Failed to allocate memory\n");
-		return NULL;
-	}
-
-	flash->erase = jz_sfc_erase;
-	flash->write = jz_sfc_write;
-	flash->read  = jz_sfc_read;
-
-	flash->page_size = gparams->page_size;
-	flash->sector_size = gparams->sector_size;
-	flash->size = gparams->size;
-	flash->addr_size = gparams->addr_size;
-	return flash;
-}
-#endif
-
-
 void sfc_nor_RDID(unsigned int *idcode)
 {
 	/* the paraterms is
@@ -1053,7 +853,7 @@ unsigned int get_partition_index(u32 offset, int *pt_offset, int *pt_size)
 
 int sfc_nor_init(unsigned int idcode)
 {
-	debug("sfc_nor_init() at %s, %d\n", __FILE__, __LINE__);
+	int i;
 
 	if (idcode == 0 || idcode == 0xff) {
 		printf("JZ SFC: Invalid ID: %x\n", idcode);
@@ -1061,7 +861,7 @@ int sfc_nor_init(unsigned int idcode)
 	}
 	printf("JZ SFC: Flash chip ID: %x\n", idcode);
 
-	for (int i = 0; i < ARRAY_SIZE(jz_spi_support_table); i++) {
+	for (i = 0; i < ARRAY_SIZE(jz_spi_support_table); i++) {
 		gparams = jz_spi_support_table[i];
 		if (gparams.id_manufactory == idcode) {
 			if (sfc_quad_mode == 1)
@@ -1072,6 +872,10 @@ int sfc_nor_init(unsigned int idcode)
 
 	if (sfc_quad_mode == 0) {
 		printf("JZ SFC: Unsupported ID, but still maybe good for flashing\n");
+		// compute size from id
+		// 0x17 is 8MB, 0x18 is 16MB, 0x19 is 32MB
+		gparams.size = (8 << ((idcode & 0xff) - 0x17)) * 1024 * 1024;
+		printf("JZ SFC: Unsupported ID, but still maybe good for flashing, size set to %d\n", gparams.size);
 		return 1;
 	} else {
 		printf("JZ SFC: Quad-mode Unsupported ID %x\n", idcode);
@@ -1081,7 +885,6 @@ int sfc_nor_init(unsigned int idcode)
 
 int sfc_nor_read(struct spi_flash *flash, unsigned int src_addr, unsigned int count,unsigned int dst_addr)
 {
-
 	int i;
 	int ret = 0;
 
@@ -1101,7 +904,7 @@ int sfc_nor_read(struct spi_flash *flash, unsigned int src_addr, unsigned int co
 
 	ret = jz_sfc_read(flash,src_addr,count,dst_addr);
 	if (ret) {
-		printf("sfc read error\n");
+		printf("SF: sfc read error\n");
 		return -1;
 	}
 
@@ -1110,7 +913,6 @@ int sfc_nor_read(struct spi_flash *flash, unsigned int src_addr, unsigned int co
 
 int sfc_nor_write(struct spi_flash *flash, unsigned int src_addr, unsigned int count,unsigned int dst_addr)
 {
-
 	int i;
 	int ret = 0;
 
@@ -1134,7 +936,7 @@ int sfc_nor_write(struct spi_flash *flash, unsigned int src_addr, unsigned int c
 
 	ret = jz_sfc_write(flash,src_addr,count,dst_addr);
 	if (ret) {
-		printf("sfc write error\n");
+		printf("SF: sfc write error\n");
 		return -1;
 	}
 
@@ -1160,7 +962,7 @@ int sfc_nor_erase(struct spi_flash *flash, unsigned int src_addr, unsigned int c
 	jz_sfc_writel(1 << 2,SFC_TRIG);
 	ret = jz_sfc_erase(flash,src_addr,count);
 	if (ret) {
-		printf("sfc erase error\n");
+		printf("SF: sfc erase error\n");
 		return -1;
 	}
 
@@ -1173,14 +975,15 @@ static inline struct jz_sfc_slave *to_jz_sfc(struct spi_slave *slave)
 	return container_of(slave, struct jz_sfc_slave, slave);
 }
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs, unsigned int max_hz, unsigned int mode)
 {
 	struct jz_sfc_slave *ss;
 
 	ss = spi_alloc_slave(struct jz_sfc_slave, bus, cs);
-	if (!ss)
+	if (!ss) {
+		debug("SF: spi_alloc_slave failed!\n");
 		return NULL;
+	}
 
 	ss->mode = mode;
 	ss->max_hz = max_hz;
@@ -1201,7 +1004,7 @@ void spi_release_bus(struct spi_slave *slave)
 {
 	/* nothing doing */
 
-	return ;
+	return;
 }
 
 void spi_free_slave(struct spi_slave *slave)
@@ -1219,35 +1022,34 @@ void sfc_for_nand_init(int sfc_quad_mode)
 	clk_set_rate(SSI, sfc_rate);
 
 	tmp = jz_sfc_readl(SFC_GLB);
-	tmp &= ~(TRAN_DIR | OP_MODE );
+	tmp &= ~(TRAN_DIR | OP_MODE);
 	tmp |= WP_EN;
-	jz_sfc_writel(tmp,SFC_GLB);
+	jz_sfc_writel(tmp, SFC_GLB);
 	tmp = jz_sfc_readl(SFC_DEV_CONF);
 	tmp &= ~(CMD_TYPE | CPHA | CPOL | SMP_DELAY_MSK |
-				THOLD_MSK | TSETUP_MSK | TSH_MSK);
+		 THOLD_MSK | TSETUP_MSK | TSH_MSK);
 	tmp |= (CEDL | HOLDDL | WPDL | 1 << SMP_DELAY_OFFSET);
-	jz_sfc_writel(tmp,SFC_DEV_CONF);
+	jz_sfc_writel(tmp, SFC_DEV_CONF);
 	for (i = 0; i < 6; i++) {
-		jz_sfc_writel((jz_sfc_readl(SFC_TRAN_CONF(i))& (~(TRAN_MODE_MSK | PHASE_FORMAT))),SFC_TRAN_CONF(i));
-	     if(sfc_quad_mode==1)
-	     {
-		unsigned int temp=0;
-		temp=jz_sfc_readl(SFC_TRAN_CONF(i));
-		temp&=~(7<<29);
-		temp|=(5<<29);
-		jz_sfc_writel(temp,SFC_TRAN_CONF(i));
-	     }
+		jz_sfc_writel((jz_sfc_readl(SFC_TRAN_CONF(i)) & (~(TRAN_MODE_MSK | PHASE_FORMAT))), SFC_TRAN_CONF(i));
+		if (sfc_quad_mode == 1) {
+			unsigned int temp = 0;
+			temp = jz_sfc_readl(SFC_TRAN_CONF(i));
+			temp &= ~(7 << 29);
+			temp |= (5 << 29);
+			jz_sfc_writel(temp, SFC_TRAN_CONF(i));
+		}
 	}
-	jz_sfc_writel((CLR_END | CLR_TREQ | CLR_RREQ | CLR_OVER | CLR_UNDR),SFC_INTC);
-	jz_sfc_writel(0,SFC_CGE);
+	jz_sfc_writel((CLR_END | CLR_TREQ | CLR_RREQ | CLR_OVER | CLR_UNDR), SFC_INTC);
+	jz_sfc_writel(0, SFC_CGE);
 	tmp = jz_sfc_readl(SFC_GLB);
 	tmp &= ~(THRESHOLD_MSK);
 	tmp |= (THRESHOLD << THRESHOLD_OFFSET);
-	jz_sfc_writel(tmp,SFC_GLB);
+	jz_sfc_writel(tmp, SFC_GLB);
 
 }
 
-void read_sfcnand_id(u8 *response,size_t len)
+void read_sfcnand_id(u8 *response, size_t len)
 {
 	/* the paraterms is
 	* cmd , len, addr,addr_len
@@ -1257,39 +1059,39 @@ void read_sfcnand_id(u8 *response,size_t len)
 	* */
 	unsigned char cmd[1];
 	cmd[0] = CMD_RDID;
-	sfc_send_cmd(&cmd[0],len,0,1,0,1,0);
-	sfc_read_data(response,len);
-	printf("id0=%02x\n",response[0]);
-	printf("id1=%02x\n",response[1]);
-	printf("SFC_STA_RT=0x%08x,\n",jz_sfc_readl(SFC_STA_RT));
+	sfc_send_cmd(&cmd[0], len, 0, 1, 0, 1, 0);
+	sfc_read_data(response, len);
+	printf("id0=%02x\n", response[0]);
+	printf("id1=%02x\n", response[1]);
+	printf("SFC_STA_RT=0x%08x,\n", jz_sfc_readl(SFC_STA_RT));
 }
 
 /* To be continued */
 int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout, void *din, unsigned long flags)
 {
-		/*unsigned int idcode;*/
-		/*sfc_nor_RDID(&idcode);*/
+	/*unsigned int idcode;*/
+	/*sfc_nor_RDID(&idcode);*/
 	unsigned int ret;
 	unsigned int addr;
 	unsigned int addr_len;
 	unsigned int bytelen = bitlen / 8;
 	unsigned int wordlen = (bytelen + 3) / 4;
-	unsigned char *cmd = (unsigned char *)dout;
+	unsigned char *cmd = (unsigned char *) dout;
 
-	if(flags == SPI_XFER_BEGIN) {
+	if (flags == SPI_XFER_BEGIN) {
 		spi_xfer_cmd_len = bytelen;
-		if(spi_xfer_cmd_len > CMD_LEN) {
-			printf("cmd(%x) len more %d\n", *(unsigned char *)dout, CMD_LEN);
+		if (spi_xfer_cmd_len > CMD_LEN) {
+			printf("cmd(%x) len more %d\n", *(unsigned char *) dout, CMD_LEN);
 			return -1;
 		}
 
-		memcpy(spi_xfer_cmd, (unsigned char *)dout, bytelen);
+		memcpy(spi_xfer_cmd, (unsigned char *) dout, bytelen);
 
 		jz_sfc_writel(STOP, SFC_TRIG);
 		jz_sfc_writel(FLUSH, SFC_TRIG);
 	}
 
-	if(flags == 0) {
+	if (flags == 0) {
 		sfc_transfer_direction(0);
 		switch (spi_xfer_cmd_len) {
 			case 1:
@@ -1299,15 +1101,15 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout, voi
 			default:
 				printf("spi_xfer_cmd_len is %d\n", spi_xfer_cmd_len);
 		}
-		sfc_send_cmd(&spi_xfer_cmd[0],bytelen,addr,addr_len,0,1,0);
+		sfc_send_cmd(&spi_xfer_cmd[0], bytelen, addr, addr_len, 0, 1, 0);
 		unsigned int tmp[1];
 		ret = sfc_read_data(tmp, bytelen);
-		*(unsigned char *)din = (tmp[0] & 0xff);
+		*(unsigned char *) din = (tmp[0] & 0xff);
 		if (ret)
 			return ret;
 	}
 
-	if(flags == (SPI_XFER_BEGIN | SPI_XFER_END)) {
+	if (flags == (SPI_XFER_BEGIN | SPI_XFER_END)) {
 		switch (bytelen) {
 			case 1:
 				addr = 0;
@@ -1321,16 +1123,16 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout, voi
 				printf("len is %d\n", bytelen);
 		}
 
-		sfc_send_cmd(&spi_xfer_cmd[0],bytelen,addr,addr_len,0,1,0);
+		sfc_send_cmd(&spi_xfer_cmd[0], bytelen, addr, addr_len, 0, 1, 0);
 	}
 
-	if(flags == SPI_XFER_END) {
+	if (flags == SPI_XFER_END) {
 		jz_sfc_writel((wordlen * 4), SFC_TRAN_LEN);
-		if(dout != NULL) { /* write */
+		if (dout != NULL) { /* write */
 			printf("????");
 		}
 
-		if(din != NULL) { /* read */
+		if (din != NULL) { /* read */
 			switch (spi_xfer_cmd_len) {
 				case 1:
 					addr = 0;
@@ -1349,8 +1151,8 @@ int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout, voi
 				default:
 					printf("spi_xfer_cmd_len is %d\n", spi_xfer_cmd_len);
 			}
-			sfc_send_cmd(&spi_xfer_cmd[0],wordlen*4,addr,addr_len,0,1,0);
-			ret = sfc_read_data((unsigned int *)din, wordlen);
+			sfc_send_cmd(&spi_xfer_cmd[0], wordlen * 4, addr, addr_len, 0, 1, 0);
+			ret = sfc_read_data((unsigned int *) din, wordlen);
 			if (ret)
 				return ret;
 		}
@@ -1381,19 +1183,20 @@ struct spi_flash *spi_flash_probe_ingenic(struct spi_slave *spi, u8 *idcode)
 		printf("ingenic: Failed to allocate memory\n");
 		return NULL;
 	}
-	flash->read = sfc_nor_read;
+
+	flash->read  = sfc_nor_read;
 	flash->erase = sfc_nor_erase;
 	flash->write = sfc_nor_write;
 
-	flash->page_size = gparams.page_size;
+	flash->page_size   = gparams.page_size;
 	flash->sector_size = gparams.sector_size;
-	flash->size = gparams.size;
-	flash->addr_size = gparams.addr_size;
+	flash->size        = gparams.size;
+	flash->addr_size   = gparams.addr_size;
 
 	return flash;
 }
 
-int  sfc_flash_lock(int argc, char * const argv[])
+int sfc_flash_lock(int argc, char *const argv[])
 {
 	unsigned char cmd[6];
 	unsigned int WR_DATE_SIZE = 1;
@@ -1402,36 +1205,36 @@ int  sfc_flash_lock(int argc, char * const argv[])
 	unsigned int WRSR_DATA;
 	unsigned int WRFR_DATA;
 
-	if(argc < 2)return -1;
+	if (argc < 2)return -1;
 	cmd[0] = CMD_WREN;
 	cmd[1] = CMD_WRSR;
 	cmd[2] = CMD_RDSR;
 
-	if(strcmp(argv[1], "RR")  == 0){
-		if(argc < 3)return -1;
+	if (strcmp(argv[1], "RR") == 0) {
+		if (argc < 3)return -1;
 		cmd[3] = simple_strtoul(argv[2], NULL, 16);
-		sfc_send_cmd(&cmd[3],1,0,0,0,1,0);
+		sfc_send_cmd(&cmd[3], 1, 0, 0, 0, 1, 0);
 		udelay(25000);
 		sfc_read_data(&tmp, 1);
 		udelay(25000);
-		printf("---->:	%#10x\n",tmp);
+		printf("---->:	%#10x\n", tmp);
 		return 0;
 	}
 
-	if(strcmp(argv[1], "FR")  == 0){
-		if(argc < 5)return -1;
+	if (strcmp(argv[1], "FR") == 0) {
+		if (argc < 5)return -1;
 		cmd[3] = simple_strtoul(argv[2], NULL, 16);
 		cmd[4] = simple_strtoul(argv[3], NULL, 16);
 		WRFR_DATA = simple_strtoul(argv[4], NULL, 16);
-		sfc_send_cmd(&cmd[3],0,0,0,0,0,1);
-		sfc_send_cmd(&cmd[4],1,0,0,0,1,1);
-		sfc_write_data(&WRFR_DATA,1);
+		sfc_send_cmd(&cmd[3], 0, 0, 0, 0, 0, 1);
+		sfc_send_cmd(&cmd[4], 1, 0, 0, 0, 1, 1);
+		sfc_write_data(&WRFR_DATA, 1);
 
-		printf("Write Enable: %#04x ; Write Registers: %#04x ; Write Data: %#04x ;\n",cmd[3],cmd[4],WRFR_DATA);
+		printf("Write Enable: %#04x ; Write Registers: %#04x ; Write Data: %#04x ;\n", cmd[3], cmd[4], WRFR_DATA);
 		return 0;
 	}
 
-	sfc_send_cmd(&cmd[2],1,0,0,0,1,0);
+	sfc_send_cmd(&cmd[2], 1, 0, 0, 0, 1, 0);
 	udelay(25000);
 	sfc_read_data(&tmp, 1);
 	udelay(25000);
@@ -1439,21 +1242,21 @@ int  sfc_flash_lock(int argc, char * const argv[])
 	last_tmp &= 0xc3;
 //	printf("%#x\n",last_tmp);
 
-	if(strcmp(argv[1], "status") == 0){
+	if (strcmp(argv[1], "status") == 0) {
 		tmp &= 0xff;
-		printf("-->Lock Status:	%#04x\n",tmp);
+		printf("-->Lock Status:	%#04x\n", tmp);
 		return 0;
 	}
 
 	WRSR_DATA = simple_strtoul(argv[1], NULL, 16);
 	WRSR_DATA &= 0x3c;
-	printf("-->Valid values: %#04x\n",WRSR_DATA);
+	printf("-->Valid values: %#04x\n", WRSR_DATA);
 	WRSR_DATA |= last_tmp;
 //	printf("%#x\n",WRSR_DATA);
 
-	sfc_send_cmd(&cmd[0],0,0,0,0,0,1);
-	sfc_send_cmd(&cmd[1],WR_DATE_SIZE,0,0,0,1,1);
-	sfc_write_data(&WRSR_DATA,1);
+	sfc_send_cmd(&cmd[0], 0, 0, 0, 0, 0, 1);
+	sfc_send_cmd(&cmd[1], WR_DATE_SIZE, 0, 0, 0, 1, 1);
+	sfc_write_data(&WRSR_DATA, 1);
 	printf("--------->Write OK\n");
 	return 0;
 }

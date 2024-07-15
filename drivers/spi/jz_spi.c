@@ -25,7 +25,7 @@ static struct jz_spi_support *gparams;
 
 /* wait time before read status (us) for spi nand */
 //static int t_reset = 500;
-static int t_read  = 120;
+static int t_read = 120;
 static int t_write = 700;
 static int t_erase = 5000;
 
@@ -39,22 +39,22 @@ static void jz_spi_writel(unsigned int value, unsigned int offset)
 	writel(value, SSI_BASE + offset);
 }
 
-static void jz_spi_flush(void )
+static void jz_spi_flush(void)
 {
 	jz_spi_writel(jz_spi_readl(SSI_CR0) | SSI_CR0_TFLUSH | SSI_CR0_RFLUSH, SSI_CR0);
 }
 
-static unsigned int spi_rxfifo_empty(void )
+static unsigned int spi_rxfifo_empty(void)
 {
 	return (jz_spi_readl(SSI_SR) & SSI_SR_RFE);
 }
 
-static unsigned int spi_txfifo_full(void )
+static unsigned int spi_txfifo_full(void)
 {
 	return (jz_spi_readl(SSI_SR) & SSI_SR_TFF);
 }
 
-static unsigned int spi_get_rxfifo_count(void )
+static unsigned int spi_get_rxfifo_count(void)
 {
 	return ((jz_spi_readl(SSI_SR) & SSI_SR_RFIFONUM_MASK) >> SSI_SR_RFIFONUM_BIT);
 }
@@ -82,11 +82,12 @@ void spi_cs_deactivate(struct spi_slave *slave)
 }
 #endif
 
-static int mem_compare(const void *buf0, const void *buf1, int len) {
+static int mem_compare(const void *buf0, const void *buf1, int len)
+{
 	int i, errflag = 0, len1, len2;
 	char *buf0_t2, *buf1_t2;
-	int *buf0_t1 = (int *)buf0;
-	int *buf1_t1 = (int *)buf1;
+	int *buf0_t1 = (int *) buf0;
+	int *buf1_t1 = (int *) buf1;
 
 	len1 = len / sizeof(int);
 	for (i = 0; i < len1; i++) {
@@ -106,8 +107,8 @@ static int mem_compare(const void *buf0, const void *buf1, int len) {
 
 	len2 = len % sizeof(int);
 	if (len2) {
-		buf0_t2 = (char *)buf0_t1;
-		buf1_t2 = (char *)buf1_t1;
+		buf0_t2 = (char *) buf0_t1;
+		buf1_t2 = (char *) buf1_t1;
 		for (i = 0; i < len2; i++) {
 			if (*buf0_t2++ != *buf1_t2++) {
 				errflag |= 1;
@@ -118,7 +119,7 @@ static int mem_compare(const void *buf0, const void *buf1, int len) {
 	return errflag;
 }
 
-void spi_init(void )
+void spi_init(void)
 {
 #if DEBUG
 	unsigned int errorpc;
@@ -146,8 +147,8 @@ void spi_send_cmd(unsigned char *cmd, unsigned int count)
 {
 	unsigned int sum = count;
 	jz_spi_flush();
-	while(!spi_rxfifo_empty());
-	while(count) {
+	while (!spi_rxfifo_empty());
+	while (count) {
 		jz_spi_writel(*cmd, SSI_DR);
 		while (spi_txfifo_full());
 		cmd++;
@@ -160,11 +161,12 @@ void spi_recv_cmd(unsigned char *read_buf, unsigned int count)
 {
 	unsigned int offset = 0;
 	jz_spi_flush();
-	while(!spi_rxfifo_empty());
+	while (!spi_rxfifo_empty());
 	while (count) {
 		jz_spi_writel(0, SSI_DR);
-		while (spi_rxfifo_empty())
-			;
+		while (spi_rxfifo_empty()) {
+			/* do nothing */
+		};
 		writeb(jz_spi_readl(SSI_DR), read_buf + offset);
 		offset++;
 		count--;
@@ -179,13 +181,12 @@ void spi_load(unsigned int src_addr, unsigned int count, unsigned int dst_addr)
 	spi_init();
 	jz_spi_writel(jz_spi_readl(SSI_CR1) | SSI_CR1_UNFIN, SSI_CR1);
 	spi_send_cmd(&cmd, 1);
-	spi_send_cmd((unsigned char *)&src_addr, 3);
-	spi_recv_cmd((unsigned char *)dst_addr, count);
+	spi_send_cmd((unsigned char *) &src_addr, 3);
+	spi_recv_cmd((unsigned char *) dst_addr, count);
 	jz_spi_writel(jz_spi_readl(SSI_CR1) & (~SSI_CR1_UNFIN), SSI_CR1);
 }
 
-struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs,
-		unsigned int max_hz, unsigned int mode)
+struct spi_slave *spi_setup_slave(unsigned int bus, unsigned int cs, unsigned int max_hz, unsigned int mode)
 {
 	spi_init();
 	struct jz_spi_slave *ss;
@@ -216,20 +217,19 @@ int spi_claim_bus(struct spi_slave *slave)
 void spi_release_bus(struct spi_slave *slave)
 {
 	jz_spi_writel(jz_spi_readl(SSI_CR1) & (~SSI_CR1_UNFIN), SSI_CR1);
-	jz_spi_writel(jz_spi_readl(SSI_SR) & (~SSI_SR_UNDR) , SSI_SR);
+	jz_spi_writel(jz_spi_readl(SSI_SR) & (~SSI_SR_UNDR), SSI_SR);
 }
 
-int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
-		const void *dout, void *din, unsigned long flags)
+int spi_xfer(struct spi_slave *slave, unsigned int bitlen, const void *dout, void *din, unsigned long flags)
 {
 	unsigned int count = bitlen / 8;
-	unsigned char *cmd = (unsigned char *)dout;
+	unsigned char *cmd = (unsigned char *) dout;
 	unsigned char *addr = din;
 	unsigned int fifo_size = 64;
 
-	if(dout != NULL) {
-		while(count) {
-			if(count > fifo_size) {
+	if (dout != NULL) {
+		while (count) {
+			if (count > fifo_size) {
 				spi_send_cmd(cmd, fifo_size);
 				cmd += fifo_size;
 				count -= fifo_size;
@@ -240,14 +240,14 @@ int  spi_xfer(struct spi_slave *slave, unsigned int bitlen,
 		}
 	}
 
-	if(din != NULL) {
-		spi_recv_cmd((unsigned char *)addr, count);
+	if (din != NULL) {
+		spi_recv_cmd((unsigned char *) addr, count);
 	}
 
 	return 0;
 }
 
-static void jz_cs_reversal(void )
+static void jz_cs_reversal(void)
 {
 	spi_release_bus(NULL);
 
@@ -255,7 +255,7 @@ static void jz_cs_reversal(void )
 
 	spi_claim_bus(NULL);
 
-	return ;
+	return;
 }
 
 int jz_read_nand(struct spi_flash *flash, u32 offset, size_t len, void *data)
@@ -263,12 +263,12 @@ int jz_read_nand(struct spi_flash *flash, u32 offset, size_t len, void *data)
 	unsigned int page_bak, page, page_num, column, i;
 	unsigned char read_buf, cmd[COMMAND_MAX_LENGTH];
 
-	if(offset % flash->page_size) {
+	if (offset % flash->page_size) {
 		printf("offset must 0x%x align !\n", flash->page_size);
 		return -1;
 	}
 
-	if(len % flash->page_size) {
+	if (len % flash->page_size) {
 		printf("len must 0x%x align !\n", flash->page_size);
 		return -1;
 	}
@@ -277,8 +277,8 @@ int jz_read_nand(struct spi_flash *flash, u32 offset, size_t len, void *data)
 	page_bak = offset / flash->page_size;
 	page_num = len / flash->page_size;
 
-	for(i = 0; i < page_num; i++) {
-		if(page_bak > gparams->page_num) {
+	for (i = 0; i < page_num; i++) {
+		if (page_bak > gparams->page_num) {
 			printf("page : %x\n", page_bak);
 			printf("page_num : %x\n", gparams->page_num);
 			printf("space is full !\n");
@@ -301,10 +301,10 @@ int jz_read_nand(struct spi_flash *flash, u32 offset, size_t len, void *data)
 		spi_send_cmd(cmd, 2);
 
 		spi_recv_cmd(&read_buf, 1);
-		while(read_buf & 0x1)
+		while (read_buf & 0x1)
 			spi_recv_cmd(&read_buf, 1);
 
-		if((read_buf & 0x30) == 0x20) {
+		if ((read_buf & 0x30) == 0x20) {
 			printf("read error !!!\n");
 			printf("please reset !!!\n");
 			return -1;
@@ -339,7 +339,7 @@ int jz_read(struct spi_flash *flash, u32 offset, size_t len, void *data)
 
 	read_len = flash->size - offset;
 
-	if(len < read_len)
+	if (len < read_len)
 		read_len = len;
 
 	jz_cs_reversal();
@@ -354,7 +354,7 @@ int jz_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 	unsigned char cmd[6], tmp;
 	int chunk_len, actual, i;
 	unsigned long byte_addr, page_size;
-	unsigned char *send_buf = (unsigned char *)buf;
+	unsigned char *send_buf = (unsigned char *) buf;
 
 	page_size = flash->page_size;
 
@@ -379,8 +379,8 @@ int jz_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 		spi_send_cmd(&cmd[1], 4);
 
 
-		for(i = 0; i < chunk_len; i += 100) {
-			if((chunk_len - i) < 100)
+		for (i = 0; i < chunk_len; i += 100) {
+			if ((chunk_len - i) < 100)
 				spi_send_cmd((send_buf + actual + i), (chunk_len - i));
 			else
 				spi_send_cmd((send_buf + actual + i), 100);
@@ -390,7 +390,7 @@ int jz_write(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 		jz_cs_reversal();
 		spi_send_cmd(&cmd[5], 1);
 		spi_recv_cmd(&tmp, 1);
-		while(tmp & CMD_SR_WIP) {
+		while (tmp & CMD_SR_WIP) {
 			spi_recv_cmd(&tmp, 1);
 		}
 
@@ -406,12 +406,12 @@ int jz_erase_nand(struct spi_flash *flash, u32 offset, size_t len)
 
 	printf("jz_erase_nand: flash->sector_size = [%d], offset = [%d], len = [%d]\n", flash->sector_size, offset, len);
 
-	if(offset % flash->sector_size) {
+	if (offset % flash->sector_size) {
 		printf("offset must 0x%x align !\n", flash->sector_size);
 		return -1;
 	}
 
-	if(len % flash->sector_size) {
+	if (len % flash->sector_size) {
 		printf("len must 0x%x align, len = [%d] !\n", flash->sector_size, len);
 		return -1;
 	}
@@ -419,8 +419,8 @@ int jz_erase_nand(struct spi_flash *flash, u32 offset, size_t len)
 	block_bak = offset / flash->page_size;
 	block_num = len / flash->sector_size;
 
-	for(i = 0; i < block_num; i++) {
-		if(block_bak > gparams->page_num) {
+	for (i = 0; i < block_num; i++) {
+		if (block_bak > gparams->page_num) {
 			printf("space is full !\n");
 			break;
 		}
@@ -443,10 +443,10 @@ int jz_erase_nand(struct spi_flash *flash, u32 offset, size_t len)
 		cmd[1] = 0xc0;
 		spi_send_cmd(cmd, 2);
 		spi_recv_cmd(&read_buf, 1);
-		while(read_buf & 0x1)
+		while (read_buf & 0x1)
 			spi_recv_cmd(&read_buf, 1);
 
-		if(read_buf & 0x4) {
+		if (read_buf & 0x4) {
 			printf("erase fail !!!\n");
 			printf("please reset !!!\n");
 			return -1;
@@ -460,19 +460,19 @@ int jz_erase_nand(struct spi_flash *flash, u32 offset, size_t len)
 
 int jz_write_nand(struct spi_flash *flash, u32 offset, size_t len, const void *buf)
 {
-	unsigned char *send_buf = (unsigned char *)buf;
+	unsigned char *send_buf = (unsigned char *) buf;
 	unsigned char read_buf, cmd[COMMAND_MAX_LENGTH];
 	unsigned int page_bak, page, page_num, column, i, read_num;
 #ifdef CONFIG_SPI_WRITE_CHECK
 	int error_count = 0;
 #endif
 
-	if(offset % flash->page_size) {
+	if (offset % flash->page_size) {
 		printf("offset must 0x%x align !\n", flash->page_size);
 		return -1;
 	}
 
-	if(len % flash->page_size) {
+	if (len % flash->page_size) {
 		printf("len must 0x%x align !\n", flash->page_size);
 		return -1;
 	}
@@ -481,8 +481,8 @@ rewrite:
 	page_bak = offset / flash->page_size;
 	page_num = len / flash->page_size;
 
-	for(i = 0; i < page_num; i++) {
-		if(page_bak > gparams->page_num) {
+	for (i = 0; i < page_num; i++) {
+		if (page_bak > gparams->page_num) {
 			printf("page : %x\n", page_bak);
 			printf("page_num : %x\n", gparams->page_num);
 			printf("space is full !\n");
@@ -498,8 +498,8 @@ rewrite:
 		spi_send_cmd(cmd, 3);
 
 		read_num = flash->page_size + 64;
-		while(read_num) {
-			if(read_num > FIFI_THRESHOLD) {
+		while (read_num) {
+			if (read_num > FIFI_THRESHOLD) {
 				spi_send_cmd(send_buf, FIFI_THRESHOLD);
 				send_buf += FIFI_THRESHOLD;
 				read_num -= FIFI_THRESHOLD;
@@ -527,10 +527,10 @@ rewrite:
 		spi_send_cmd(cmd, 2);
 
 		spi_recv_cmd(&read_buf, 1);
-		while(read_buf & 0x1)
+		while (read_buf & 0x1)
 			spi_recv_cmd(&read_buf, 1);
 
-		if(read_buf & 0x8) {
+		if (read_buf & 0x8) {
 			printf("write fail !!!\n");
 			printf("please reset !!!\n");
 			return -1;
@@ -552,19 +552,6 @@ rewrite:
 		return -1;
 	}
 
-#if 0
-	for(i = 0; i < len; i += flash->page_size) {
-		jz_read_nand(flash, offset, flash->page_size, check_buf);
-		for(j = 0; j < flash->page_size; j++) {
-			if(strcmp(send_buf[j], check_buf[j])) {
-				printf("write error : %x!\n", i);
-				error_count++;
-				jz_erase_nand(flash, offset, ((len + flash->sector_size - 1)/flash->sector_size) * flash->sector_size);
-				goto rewrite;
-			}
-		}
-	}
-#else
 	for(i = 0; i < page_num; i++) {
 		memset(check_buf, 0xff, flash->page_size);
 		jz_read_nand(flash, offset + i * flash->page_size, flash->page_size, check_buf);
@@ -576,7 +563,6 @@ rewrite:
 			goto rewrite;
 		}
 	}
-#endif
 #endif
 	return 0;
 }
@@ -598,24 +584,24 @@ int jz_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	cmd[0] = CMD_WREN;
 
-	switch(erase_size) {
-	case 0x1000 :
-		cmd[1] = CMD_ERASE_4K;
-		break;
-	case 0x8000 :
-		cmd[1] = CMD_ERASE_32K;
-		break;
-	case 0x10000 :
-		cmd[1] = CMD_ERASE_64K;
-		break;
-	default:
-		printf("unknown erase size !\n");
-		return -1;
+	switch (erase_size) {
+		case 0x1000 :
+			cmd[1] = CMD_ERASE_4K;
+			break;
+		case 0x8000 :
+			cmd[1] = CMD_ERASE_32K;
+			break;
+		case 0x10000 :
+			cmd[1] = CMD_ERASE_64K;
+			break;
+		default:
+			printf("unknown erase size !\n");
+			return -1;
 	}
 
 	cmd[5] = CMD_RDSR;
 
-	while(len) {
+	while (len) {
 		cmd[2] = offset >> 16;
 		cmd[3] = offset >> 8;
 		cmd[4] = offset >> 0;
@@ -631,7 +617,7 @@ int jz_erase(struct spi_flash *flash, u32 offset, size_t len)
 		jz_cs_reversal();
 		spi_send_cmd(&cmd[5], 1);
 		spi_recv_cmd(&buf, 1);
-		while(buf & CMD_SR_WIP) {
+		while (buf & CMD_SR_WIP) {
 			spi_recv_cmd(&buf, 1);
 		}
 
@@ -641,6 +627,7 @@ int jz_erase(struct spi_flash *flash, u32 offset, size_t len)
 
 	return 0;
 }
+
 #ifdef CONFIG_SPI_FLASH_INGENIC
 static void jz_spi_nand_init(void )
 {
@@ -667,7 +654,7 @@ static void jz_spi_nand_init(void )
 	cmd[1] = 0xa0;
 	spi_send_cmd(cmd, 2);
 	spi_recv_cmd(read_cmd, 1);
-	if(read_cmd[0] != 0x0)
+	if (read_cmd[0] != 0x0)
 		printf("read status 0xa0 : %x\n", read_cmd[0]);
 
 	jz_cs_reversal();
@@ -675,7 +662,7 @@ static void jz_spi_nand_init(void )
 	cmd[1] = 0xb0;
 	spi_send_cmd(cmd, 2);
 	spi_recv_cmd(read_cmd, 1);
-	if(read_cmd[0] != 0x10)
+	if (read_cmd[0] != 0x10)
 		printf("read status 0xb0 : %x\n", read_cmd[0]);
 
 }
@@ -689,12 +676,12 @@ static void jz_spi_nand_scan_bad_block(struct jz_spi_support *params)
 	unsigned char cmd[COMMAND_MAX_LENGTH], read_buf;
 
 	params->page_list = calloc(size / page_size, sizeof(unsigned int));
-	if(params->page_list == NULL) {
+	if (params->page_list == NULL) {
 		printf("calloc error !\n");
 		return ;
 	}
 
-	for(block = 0; block < (size / page_size); block += (block_size / page_size)) {
+	for (block = 0; block < (size / page_size); block += (block_size / page_size)) {
 		/* erase */
 		jz_cs_reversal();
 		cmd[0] = 0x06;
@@ -713,98 +700,18 @@ static void jz_spi_nand_scan_bad_block(struct jz_spi_support *params)
 		cmd[1] = 0xc0;
 		spi_send_cmd(cmd, 2);
 		spi_recv_cmd(&read_buf, 1);
-		while(read_buf & 0x1)
+		while (read_buf & 0x1)
 			spi_recv_cmd(&read_buf, 1);
 
 		/* can not erase */
-		if(read_buf & 0x4) {
+		if (read_buf & 0x4) {
 			printf("erase bad block id : %d\n", (block / 0x40));
 			continue;
 		}
-#if 0
-		/* write */
-		int send_len;
-		int column = 0;
-		unsigned char write_buf = 0x5a;
-		for(page = 0; page < (block_size / page_size); page++) {
-			jz_cs_reversal();
-			cmd[0] = 0x02;
-			cmd[1] = (column >> 8) & 0xf;
-			cmd[2] = column & 0xff;
-			spi_send_cmd(cmd, 3);
-
-			for(send_len = 0; send_len < page_size; send_len++)
-				spi_send_cmd(&write_buf, 1);
-
-			jz_cs_reversal();
-			cmd[0] = 0x06;
-			spi_send_cmd(cmd, 1);
-
-			jz_cs_reversal();
-			cmd[0] = 0x10;
-			cmd[1] = ((page + block) >> 16) & 0xff;
-			cmd[2] = ((page + block) >> 8) & 0xff;
-			cmd[3] = (page + block) & 0xff;
-			spi_send_cmd(cmd, 4);
-			udelay(t_write);
-
-			jz_cs_reversal();
-			cmd[0] = 0x0f;
-			cmd[1] = 0xc0;
-			spi_send_cmd(cmd, 2);
-
-			spi_recv_cmd(&read_buf, 1);
-			while(read_buf & 0x1)
-				spi_recv_cmd(&read_buf, 1);
-
-			/* can not write */
-			if(read_buf & 0x8) {
-				printf("write bad block id : %d\n", (block / 0x40));
-				break;
-			}
-		}
-
-		if(page < (block_size / page_size)) {
-			printf("write bad block \n");
-			continue ;
-		}
-
-		/* read */
-		for(page = 0; page < (block_size / page_size); page++) {
-			jz_cs_reversal();
-			cmd[0] = 0x13;
-			cmd[1] = ((page + block) >> 16) & 0xff;
-			cmd[2] = ((page + block) >> 8) & 0xff;
-			cmd[3] = (page + block) & 0xff;
-			spi_send_cmd(cmd, 4);
-			udelay(t_read);
-
-			jz_cs_reversal();
-			cmd[0] = 0x0f;
-			cmd[1] = 0xc0;
-			spi_send_cmd(cmd, 2);
-
-			spi_recv_cmd(&read_buf, 1);
-			while(read_buf & 0x1)
-				spi_recv_cmd(&read_buf, 1);
-
-			/* can not correct */
-			if((read_buf & 0x30) == 0x20) {
-				printf("read bad block : %d\n", (block / 0x40));
-				break;
-			}
-		}
-
-		if(page < (block_size / page_size)) {
-			printf("read bad block\n");
-			continue ;
-		}
-#endif
-		for(page = 0; page < (block_size / page_size); page++) {
+		for (page = 0; page < (block_size / page_size); page++) {
 			params->page_list[params->page_num] = (block + page);
 			params->page_num = params->page_num + 1;
 		}
-
 	}
 
 	printf("spi nand space : 0x%x\n", params->page_num * params->page_size);
@@ -823,8 +730,8 @@ struct spi_flash *spi_flash_probe_ingenic_nand(struct spi_slave *spi, u8 *idcode
 	}
 
 	if (i == ARRAY_SIZE(jz_spi_nand_support_table)) {
-			printf("ingenic: Unsupported ID %04x\n", idcode[0]);
-			return NULL;
+		printf("ingenic: Unsupported ID %04x\n", idcode[0]);
+		return NULL;
 	}
 
 	flash = spi_flash_alloc_base(spi, params->name);
@@ -870,7 +777,7 @@ struct spi_flash *spi_flash_probe_ingenic(struct spi_slave *spi, u8 *idcode)
 		if (idcode[0] != 0){
 			printf("unsupport ID is %04x if the id not be 0x00,the flash is ok for burner\n",idcode[0]);
 			params = &jz_spi_support_table[1];
-		}else{
+		} else {
 			printf("ingenic: Unsupported ID %04x\n", idcode[0]);
 			return NULL;
 
