@@ -271,9 +271,9 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 		reg_tmp = jz_sfc_readl(SFC_SR);
 		if (reg_tmp & TRAN_REQ) {
 			jz_sfc_writel(CLR_TREQ, SFC_SCR);
-			if ((len - tmp_len) > THRESHOLD)
+			if ((len - tmp_len) > THRESHOLD) {
 				fifo_num = THRESHOLD;
-			else {
+			} else {
 				fifo_num = len - tmp_len;
 			}
 
@@ -283,8 +283,9 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 				tmp_len++;
 			}
 		}
-		if (tmp_len == len)
+		if (tmp_len == len) {
 			break;
+		}
 	}
 
 	reg_tmp = jz_sfc_readl(SFC_SR);
@@ -292,11 +293,11 @@ static int sfc_write_data(unsigned int *data, unsigned int length)
 		reg_tmp = jz_sfc_readl(SFC_SR);
 	}
 
-	if ((jz_sfc_readl(SFC_SR)) & END)
+	if ((jz_sfc_readl(SFC_SR)) & END) {
 		jz_sfc_writel(CLR_END, SFC_SCR);
+	}
 
 	return 0;
-	}
 }
 
 #define CPM_SSICDR (0xb0000000 + 0x74)
